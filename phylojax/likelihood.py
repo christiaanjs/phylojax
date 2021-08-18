@@ -43,13 +43,17 @@ class JaxLikelihood:
 
         self.pattern_count = sequences_encoded.shape[-2]
         self.pattern_counts = (
-            np.ones([self.pattern_count]) if pattern_counts is None else pattern_counts
+            np.ones([self.pattern_count])
+            if pattern_counts is None
+            else np.array(pattern_counts)
         )
 
         self.category_weights = (
-            np.ones(1) if category_weights is None else category_weights
+            np.ones(1) if category_weights is None else np.array(category_weights)
         )
-        self.category_rates = np.ones(1) if category_weights is None else category_rates
+        self.category_rates = (
+            np.ones(1) if category_weights is None else np.array(category_rates)
+        )
 
     def log_likelihood(self, branch_lengths: Array):
         """

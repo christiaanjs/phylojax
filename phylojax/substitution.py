@@ -21,7 +21,7 @@ def eigen_transition_probs(U: Array, lambd: Array, Vt: Array, t: Array):
 
 class SubstitutionModel:
     def __init__(self, frequencies: Array):
-        self.pi = frequencies
+        self.pi = np.array(frequencies)
 
     @abstractmethod
     def q(self) -> Array:
@@ -39,7 +39,7 @@ def stack_matrix(mat: tp.Iterable[tp.Iterable[Array]]):
 class HKY(SubstitutionModel):
     def __init__(self, frequencies, kappa: Array):
         super().__init__(frequencies)
-        self.kappa = kappa
+        self.kappa = np.array(kappa)
 
     def q(self) -> Array:
         pi = self.pi
