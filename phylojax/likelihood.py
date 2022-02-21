@@ -22,6 +22,7 @@ class JaxLikelihood:
         topology_dict
             Dictionary with keys:
             - postorder_node_indices
+            - child_indices
 
         sequences_encoded
             Numpy array of onehot-encoded sequences
@@ -36,10 +37,11 @@ class JaxLikelihood:
         self.node_indices = topology_dict["postorder_node_indices"]
         self.child_indices = topology_dict["child_indices"][self.node_indices]
 
-        self.sequences_encoded = sequences_encoded
         self.substitution_model = substitution_model
 
-        self.leaf_partials = np.expand_dims(sequences_encoded, -2)
+        sequences_encoded_node_first = np.moveaxis(sequences_encoded, -2, 0)
+        self.sequences_encoded = sequences_encoded_node_first
+        self.leaf_partials = np.expand_dims(sequences_encoded_node_first, -2)
 
         self.pattern_count = sequences_encoded.shape[-2]
         self.pattern_counts = (
