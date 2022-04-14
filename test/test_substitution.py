@@ -15,15 +15,22 @@ def matexp_transition_probs(q: Array, t: Array):
 
 @pytest.mark.parametrize(
     "subst_model",
-    [phylojax.substitution.HKY(np.array([0.23, 0.26, 0.27, 0.24]), np.array(2.0))],
+    [
+        phylojax.substitution.HKY(np.array([0.23, 0.26, 0.27, 0.24]), np.array(2.0)),
+        phylojax.substitution.JC(),
+        phylojax.substitution.GTR(
+            np.array([0.23, 0.26, 0.27, 0.24]),
+            np.array([0.2, 0.12, 0.17, 0.09, 0.24, 0.18]),
+        ),
+    ],
 )
 @pytest.mark.parametrize(
     "t", [np.array([1.0, 0.2, 0.4]), np.array([[0.1, 0.2], [0.3, 0.6]])]
 )
-def test_hky_transition_probs(
+def test_transition_probs(
     subst_model: phylojax.substitution.SubstitutionModel, t: Array
 ):
     branch_lengths = np.array([1.0, 0.2, 0.4])
     res = subst_model.transition_probs(t)
-    expected = matexp_transition_probs(subst_model.q(), t)
+    expected = matexp_transition_probs(subst_model.q_norm(), t)
     assert_allclose(res, expected, atol=1e-3)
