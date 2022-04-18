@@ -39,22 +39,25 @@ class JaxLikelihood:
 
         self.substitution_model = substitution_model
 
-        sequences_encoded_node_first = np.moveaxis(sequences_encoded, -2, 0)
-        self.sequences_encoded = sequences_encoded_node_first
-        self.leaf_partials = np.expand_dims(sequences_encoded_node_first, -2)
+        self.category_weights = (
+            np.ones(1) if category_weights is None else np.array(category_weights)
+        )
+        self.category_rates = (
+            np.ones(1) if category_weights is None else np.array(category_rates)
+        )
+
+        category_count = self.category_weights.shape[0]
+        sequences_shape = sequences_encoded.shape
+        self.leaf_partials = np.broadcast_to(
+            np.expand_dims(sequences_encoded, -2),
+            sequences_shape[:-1] + (category_count,) + sequences_shape[-1:],
+        )
 
         self.pattern_count = sequences_encoded.shape[-2]
         self.pattern_counts = (
             np.ones([self.pattern_count])
             if pattern_counts is None
             else np.array(pattern_counts)
-        )
-
-        self.category_weights = (
-            np.ones(1) if category_weights is None else np.array(category_weights)
-        )
-        self.category_rates = (
-            np.ones(1) if category_weights is None else np.array(category_rates)
         )
 
     def log_likelihood(self, branch_lengths: Array):
@@ -69,19 +72,10 @@ class JaxLikelihood:
         child_transition_probs = transition_probs[
             self.child_indices
         ]  # node, child, ..., category, parent char, child char
-        batch_shape = branch_lengths.shape[:-1]
-        leaf_partials = np.moveaxis(
-            np.broadcast_to(
-                self.leaf_partials,
-                batch_shape + (self.taxon_count,) + self.leaf_partials.shape[1:],
-            ),
-            len(batch_shape),
-            0,
-        )
         partials = np.concatenate(
             [
-                leaf_partials,
-                np.zeros((self.taxon_count - 1,) + leaf_partials.shape[1:]),
+                self.leaf_partials,
+                np.zeros((self.taxon_count - 1,) + self.leaf_partials.shape[1:]),
             ]
         )  # Node, ..., pattern, category, char
 
