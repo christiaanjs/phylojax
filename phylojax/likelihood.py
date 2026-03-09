@@ -100,7 +100,7 @@ class JaxLikelihood:
                 ),
                 axis=0,
             )
-            partials = jax.ops.index_add(partials, node_index, node_partials)
+            partials = partials.at[node_index].add(node_partials)
         root_partials = partials[-1]
         cat_likelihoods = np.sum(self.substitution_model.pi * root_partials, axis=-1)
         site_likelihoods = np.sum(self.category_weights * cat_likelihoods, axis=-1)
