@@ -33,5 +33,6 @@ def get_discrete_weibull_weights_rates(
     rates = site_weibull_scale * (-np.log(1 - probs)) ** (
         1 / site_weibull_concentration
     )
+    rates = rates / np.mean(rates)
     weights = get_equal_weights(category_count, dtype=site_weibull_concentration.dtype)
     return weights, rates
